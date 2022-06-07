@@ -6,4 +6,7 @@ public interface UsuarioService {
 	
 	public Iterable<Usuario> getAllUsuarios();
 
+	public Usuario createUsuario(Usuario usuario) throws Exception;
+
+
 }

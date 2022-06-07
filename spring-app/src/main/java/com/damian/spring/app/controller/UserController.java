@@ -1,9 +1,15 @@
 package com.damian.spring.app.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.damian.spring.app.entity.Usuario;
 import com.damian.spring.app.repository.RoleRepository;
@@ -30,6 +36,32 @@ public class UserController {
 		model.addAttribute("userList", usuarioService.getAllUsuarios());
 		model.addAttribute("roles", roleRepository.findAll());
 		model.addAttribute("listTab", "active");
+		
+		return "user-form/user-view";
+	}
+	
+	@PostMapping("/userForm")
+	public String crearUsuario(@Valid @ModelAttribute("userForm") Usuario usuario, BindingResult result, ModelMap model) {
+		
+		if(result.hasErrors()) {
+			model.addAttribute("userForm", usuario);
+			model.addAttribute("formTab", "active");
+		} else {
+			try {
+				usuarioService.createUsuario(usuario);
+				model.addAttribute("userForm", new Usuario());
+				model.addAttribute("listTab", "active");
+			} catch (Exception e) {
+				model.addAttribute("formErrorMessage", e.getMessage());
+				model.addAttribute("userForm", usuario);
+				model.addAttribute("formTab", "active");
+				model.addAttribute("userList", usuarioService.getAllUsuarios());
+				model.addAttribute("roles", roleRepository.findAll());
+			}
+		}
+		
+		model.addAttribute("userList", usuarioService.getAllUsuarios());
+		model.addAttribute("roles", roleRepository.findAll());
 		
 		return "user-form/user-view";
 	}
