@@ -13,7 +13,7 @@ public class UserController {
 
 	@GetMapping("/userForm")
 	public String userForm () {
-		return "user-form";
+		return "user-form/user-view";
 	}
 	
 }
