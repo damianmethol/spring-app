@@ -55,7 +55,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public Usuario getUserById(Long id) throws Exception {
-		return repository.findById(id).orElseThrow(() -> new Exception("El usuario para editar no existe."));
+		return repository.findById(id).orElseThrow(() -> new Exception("El usuario no existe."));
 	}
 
 
@@ -78,6 +78,16 @@ public class UsuarioServiceImpl implements UsuarioService {
 		destino.setApellido(origen.getApellido());
 		destino.setEmail(origen.getEmail());
 		destino.setRoles(origen.getRoles());
+	}
+
+
+
+	@Override
+	public void deleteUser(Long id) throws Exception {
+		Usuario user = getUserById(id);
+		
+		repository.delete(user);
+		
 	}
 	
 }
