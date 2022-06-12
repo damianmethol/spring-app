@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.damian.spring.app.dto.ChangePasswordForm;
 import com.damian.spring.app.entity.Usuario;
 import com.damian.spring.app.repository.UsuarioRepository;
 
@@ -87,7 +88,27 @@ public class UsuarioServiceImpl implements UsuarioService {
 		Usuario user = getUserById(id);
 		
 		repository.delete(user);
+	}
+
+
+
+	@Override
+	public Usuario changePassword(ChangePasswordForm form) throws Exception {
 		
+		Usuario user = getUserById(form.getId());
+		
+		if(!user.getPassword().equals(form.getCurrentPassword())) {
+			throw new Exception("Current Password inválido.");
+		}
+		if(user.getPassword().equals(form.getNewPassword())) {
+			throw new Exception("Nueva password debe ser diferente a la password actual.");
+		}
+		if(!form.getNewPassword().equals(form.getConfirmPassword())) {
+			throw new Exception("Nueva Password y Confirm Password no coinciden.");
+		}
+		
+		user.setPassword(form.getNewPassword());
+		return repository.save(user);
 	}
 	
 }
