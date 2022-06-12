@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.damian.spring.app.Exception.UsernameOrIdNotFound;
 import com.damian.spring.app.dto.ChangePasswordForm;
 import com.damian.spring.app.entity.Usuario;
 import com.damian.spring.app.repository.RoleRepository;
@@ -126,7 +127,7 @@ public class UserController {
 	public String deleteUser(Model model, @PathVariable(name="id") Long id) {
 		try {
 			usuarioService.deleteUser(id);
-		} catch (Exception e) {
+		} catch (UsernameOrIdNotFound e) {
 			model.addAttribute("listErrorMessage", e.getMessage());
 		}
 		return userForm(model);

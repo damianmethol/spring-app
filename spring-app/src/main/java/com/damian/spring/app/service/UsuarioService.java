@@ -1,5 +1,6 @@
 package com.damian.spring.app.service;
 
+import com.damian.spring.app.Exception.UsernameOrIdNotFound;
 import com.damian.spring.app.dto.ChangePasswordForm;
 import com.damian.spring.app.entity.Usuario;
 
@@ -13,7 +14,7 @@ public interface UsuarioService {
 	
 	public Usuario updateUser (Usuario usuario) throws Exception;
 	
-	public void deleteUser(Long id) throws Exception;
+	public void deleteUser(Long id) throws UsernameOrIdNotFound;
 	
 	public Usuario changePassword(ChangePasswordForm form) throws Exception;
 	
