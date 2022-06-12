@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8" />
 <head>
     <title>Mi primer Login</title>
 
@@ -21,7 +22,7 @@
 <body>
     <div class="modal-dialog text-center">
         <div class="col-sm-8 main-section">
-            <div class="modal-content">
+            <div class="modal-content opacity-100">
                 <div class="col-12 user-img">
                     <img src="static/img/user.png" th:src="@{/img/user.png}"/>
                 </div>
@@ -35,7 +36,7 @@
                     <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i>  Ingresar </button>
                 </form>
                 <div class="col-12 forgot">
-                    <p><a href="#">Recordar contrasena?</a></p>
+                    <p><a href="#">¿Recordar contraseña?</a></p>
                     <p><a href="#" th:href="@{/signup}">Crear Usuario - Registrarse</a>
                 </div>
                 <div th:if="${param.error}" class="alert alert-danger" role="alert">
