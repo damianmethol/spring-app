@@ -3,6 +3,10 @@ package com.damian.spring.app.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.damian.spring.app.dto.ChangePasswordForm;
@@ -14,6 +18,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Autowired
 	UsuarioRepository repository;
+	
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Override
 	public Iterable<Usuario> getAllUsuarios() {
@@ -47,6 +54,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	public Usuario createUsuario(Usuario usuario) throws Exception {
 		if(checkUsernameAvailable(usuario) && checkPasswordValid(usuario)) {
+			
+			String encodedPassword = bCryptPasswordEncoder.encode(usuario.getPassword());
+			usuario.setPassword(encodedPassword);
+			
 			usuario = repository.save(usuario);
 		}
 		return usuario;
@@ -81,23 +92,38 @@ public class UsuarioServiceImpl implements UsuarioService {
 		destino.setRoles(origen.getRoles());
 	}
 
-
-
 	@Override
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	public void deleteUser(Long id) throws Exception {
 		Usuario user = getUserById(id);
 		
 		repository.delete(user);
 	}
+	
+	public boolean isLoggedUserADMIN(){
+		 return loggedUserHasRole("ROLE_ADMIN");
+		}
 
-
-
+	public boolean loggedUserHasRole(String role) {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		UserDetails loggedUser = null;
+		Object roles = null; 
+		if (principal instanceof UserDetails) {
+			loggedUser = (UserDetails) principal;
+			
+			roles = loggedUser.getAuthorities().stream()
+						.filter(x -> role.equals(x.getAuthority()))
+						.findFirst().orElse(null); //loggedUser = null;
+		}
+		return roles != null ?true :false;
+		}
+	
 	@Override
 	public Usuario changePassword(ChangePasswordForm form) throws Exception {
 		
 		Usuario user = getUserById(form.getId());
 		
-		if(!user.getPassword().equals(form.getCurrentPassword())) {
+		if(!isLoggedUserADMIN() && !user.getPassword().equals(form.getCurrentPassword())) {
 			throw new Exception("Current Password inválido.");
 		}
 		if(user.getPassword().equals(form.getNewPassword())) {
@@ -107,7 +133,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 			throw new Exception("Nueva Password y Confirm Password no coinciden.");
 		}
 		
-		user.setPassword(form.getNewPassword());
+		String encodedPassword = bCryptPasswordEncoder.encode(form.getNewPassword());
+		user.setPassword(encodedPassword);
 		return repository.save(user);
 	}
 	
