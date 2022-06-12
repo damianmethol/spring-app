@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.damian.spring.app.Exception.CustomFieldValidationException;
 import com.damian.spring.app.Exception.UsernameOrIdNotFound;
 import com.damian.spring.app.dto.ChangePasswordForm;
 import com.damian.spring.app.entity.Usuario;
@@ -33,7 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	private boolean checkUsernameAvailable(Usuario user) throws Exception {
 		Optional<Usuario> userFound = repository.findByUsername(user.getUsername());
 		if(userFound.isPresent()) {
-			throw new Exception("Username no disponible");
+			throw new CustomFieldValidationException("Username no disponible", "username");
 		}
 		return true;
 	}
@@ -41,11 +42,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 	private boolean checkPasswordValid(Usuario user) throws Exception {
 		
 		if(user.getConfirmPassword() == null || user.getConfirmPassword().isEmpty()) {
-			throw new Exception("Confirm Password es obligatorio ");
+			throw new CustomFieldValidationException("Confirm Password es obligatorio", "confirmPassword");
 		}
 		
 		if(!user.getPassword().equals(user.getConfirmPassword())) {
-			throw new Exception("Password y Confirm Password no son iguales");
+			throw new CustomFieldValidationException("Password y Confirm Password no son iguales", "password");
 		}
 		return true;
 	}
@@ -137,6 +138,23 @@ public class UsuarioServiceImpl implements UsuarioService {
 		String encodedPassword = bCryptPasswordEncoder.encode(form.getNewPassword());
 		user.setPassword(encodedPassword);
 		return repository.save(user);
+	}
+	
+	public Usuario getLoggedUser() throws Exception {
+		//Obtener el usuario logeado
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		UserDetails loggedUser = null;
+
+		//Verificar que ese objeto traido de sesion es el usuario
+		if (principal instanceof UserDetails) {
+			loggedUser = (UserDetails) principal;
+		}
+		
+		Usuario myUser = repository
+				.findByUsername(loggedUser.getUsername()).orElseThrow(() -> new Exception("Problemas obteniendo usuario de sesión"));
+		
+		return myUser;
 	}
 	
 }

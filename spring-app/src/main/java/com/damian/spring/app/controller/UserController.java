@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.damian.spring.app.Exception.CustomFieldValidationException;
 import com.damian.spring.app.Exception.UsernameOrIdNotFound;
 import com.damian.spring.app.dto.ChangePasswordForm;
 import com.damian.spring.app.entity.Usuario;
@@ -59,7 +60,14 @@ public class UserController {
 				usuarioService.createUsuario(usuario);
 				model.addAttribute("userForm", new Usuario());
 				model.addAttribute("listTab", "active");
-			} catch (Exception e) {
+			} catch (CustomFieldValidationException e) {
+				result.rejectValue(e.getFieldName(), null, e.getMessage());
+				model.addAttribute("userForm", usuario);
+				model.addAttribute("formTab", "active");
+				model.addAttribute("userList", usuarioService.getAllUsuarios());
+				model.addAttribute("roles", roleRepository.findAll());
+			}
+			catch (Exception e) {
 				model.addAttribute("formErrorMessage", e.getMessage());
 				model.addAttribute("userForm", usuario);
 				model.addAttribute("formTab", "active");
