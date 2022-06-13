@@ -38,6 +38,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 		}
 		return true;
 	}
+	
+	private boolean checkEmailAvailable(Usuario user) throws Exception {
+		Optional<Usuario> userFound = repository.findByEmail(user.getEmail());
+		if(userFound.isPresent()) {
+			throw new CustomFieldValidationException("Ya existe una cuenta vinculada a este email", "email");
+		}
+		return true;
+	}
 
 	private boolean checkPasswordValid(Usuario user) throws Exception {
 		
@@ -55,7 +63,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public Usuario createUsuario(Usuario usuario) throws Exception {
-		if(checkUsernameAvailable(usuario) && checkPasswordValid(usuario)) {
+		if(checkUsernameAvailable(usuario) && checkEmailAvailable(usuario) && checkPasswordValid(usuario)) {
 			
 			String encodedPassword = bCryptPasswordEncoder.encode(usuario.getPassword());
 			usuario.setPassword(encodedPassword);

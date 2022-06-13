@@ -8,4 +8,6 @@ import com.damian.spring.app.entity.Role;
 @Repository
 public interface RoleRepository extends CrudRepository<Role, Long> {
 
+	public Role findByName(String name);
+	
 }
